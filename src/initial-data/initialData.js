@@ -10,7 +10,7 @@ const initialData = async () => {
       (picture, i, pictures) => new Picture(picture, pictures)
     );
 
-    users = users.map(user => new User(user, []));
+    users = users.map((user) => new User(user, []));
 
     return { pictures, users };
   } catch (error) {

@@ -1,7 +1,8 @@
 const TOKEN = "token";
 
-export const setToken = payload => {
+export const setToken = (payload) => {
   const token = JSON.stringify(payload);
+  console.log(token);
   localStorage.setItem(TOKEN, token);
 };
 

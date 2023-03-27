@@ -17,8 +17,9 @@ class User {
     const { address, phone, name, password, email, isAdmin, isBusiness } = user;
     this.#id = generateUniqId(users, 1_000_000, 9_999_999);
     console.log(name);
+
     this.#name = this.setName(name);
-    // this.#address = this.checkAddress(address);
+    this.#address = this.checkAddress(address);
     this.#address = address;
     this.#phone = this.checkPhone(phone);
     this.#email = this.checkUniqEmail(email, users);
@@ -28,26 +29,19 @@ class User {
     this.#isBusiness = isBusiness || false;
   }
 
-  setName({ First, Last }) {
+  setName({ first, last }) {
+    if (
+      typeof first !== "string" ||
+      typeof last !== "string" ||
+      first.length < 2 ||
+      last.length < 2
+    )
+      throw new Error("Please enter a valid name!");
     return {
-      First: makeEveryFirstLetterCapital(First),
-      Last: makeEveryFirstLetterCapital(Last),
+      first: makeEveryFirstLetterCapital(first),
+      last: makeEveryFirstLetterCapital(last),
     };
   }
-  // setName({ first, last }) {
-  //   if (
-  //     typeof first !== "string" ||
-  //     typeof last !== "string" ||
-  //     first.length < 2 ||
-  //     last.length < 2
-  //   )
-  //     throw new Error("Please enter a valid name!");
-
-  //   return {
-  //     first: makeEveryFirstLetterCapital(first),
-  //     last: makeEveryFirstLetterCapital(last),
-  //   };
-  // }
 
   checkPhone(phone) {
     const regex = /^0[0-9]{1,2}(-?|\s?)[0-9]{3}(-?|\s?)[0-9]{4}/g;
@@ -80,15 +74,16 @@ class User {
 
   checkAddress(address) {
     const { state, country, city, street, houseNumber, zip } = address;
+
     if (
       typeof country !== "string" ||
       country.length < 2 ||
       city.length < 2 ||
       street.length < 2 ||
-      typeof houseNumber !== "number" ||
-      houseNumber <= 0 ||
-      typeof zip !== "number" ||
-      zip <= 0
+      typeof +houseNumber !== "number" ||
+      +houseNumber <= 0 ||
+      typeof +zip !== "number" ||
+      +zip <= 0
     )
       throw new Error("Please enter a valid address!");
 
@@ -126,6 +121,9 @@ class User {
 
   get _id() {
     return this.#id;
+  }
+  get isBusiness() {
+    return this.#isBusiness;
   }
   get isAdmin() {
     return this.#isAdmin;

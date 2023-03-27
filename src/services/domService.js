@@ -17,6 +17,10 @@ export const LOGIN_PAGE_LINK = document.getElementById("login-page-link");
 export const RETURN_TO_HOME_PAGE_LINK = document.getElementById(
   "return-to-home-page-link"
 );
+export const LOGOUT_LINK = document.getElementById("logout-page-link");
+export const EDIT_PROFILE_LINK = document.getElementById(
+  "edit-profile-page-link"
+);
 
 /***** slider *****/
 export const SLIDER_IMAGE = document.getElementById("slider-image");

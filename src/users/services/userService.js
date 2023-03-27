@@ -1,4 +1,6 @@
 import { onInputChange, onReset } from "../../forms/utils/formMethods.js";
+import PAGES from "../../routes/pageModel.js";
+import { onChangePage } from "../../routes/router.js";
 import {
   LOGIN_EMAIL_FIELD,
   LOGIN_EMAIL_ERROR,
@@ -30,9 +32,13 @@ import {
   REGISTER_SUBMIT_BTN,
   REGISTER_CENCEL_BTN,
   CHECK_BUSINESS_BTN,
+  LOGOUT_LINK,
+  LOGIN_PAGE_LINK,
+  CREATE_PIC_PAGE_LINK,
 } from "../../services/domService.js";
 import User from "../models/User.js";
 import useForm from "./../../forms/useForm.js";
+import { getUser, removeToken, setToken } from "./localStorageService.js";
 
 export const login = () => {
   const INITIAL_LOGIN_FORM = {
@@ -49,10 +55,24 @@ export const login = () => {
   const LOGIN_ERROR_ARRAY = [LOGIN_EMAIL_ERROR, LOGIN_PASSWORD_ERROR];
 
   const handleLoginSubmit = (data) => {
-    console.log(data);
     // זיהוי אם יש משתמשים
-    // זיהוי המשתמש במערך המשתמשים
-    // אותנתיקציה של הסיסמה שהוזנה עם סיסמת המשתמש
+    if (!users) return console.log("not have a users");
+    console.log(users);
+
+    const userIn = users.find((user) => user.email === data.email);
+
+    if (!userIn) return alert("please signup");
+    if (userIn.password !== data.password)
+      return alert("please enter valid password");
+    const { _id, isBusiness, isAdmin } = userIn;
+    user = userIn;
+    console.log(user);
+
+    const obgUser = { _id, isBusiness, isAdmin };
+    setToken(obgUser);
+    LOGOUT_LINK.className = "nav-link cursor d-block";
+    LOGIN_PAGE_LINK.className = "nav-link cursor d-none";
+    CREATE_PIC_PAGE_LINK.className = "nav-link cursor d-block";
     // creating token - payload
     // set token in localStorage
     // set global variable user
@@ -64,6 +84,7 @@ export const login = () => {
       form.handleReset
     );
     // move to home page
+    onChangePage(PAGES.HOME);
   };
 
   const form = useForm(INITIAL_LOGIN_FORM, LOGIN_SCHEMA, handleLoginSubmit);
@@ -93,9 +114,9 @@ export const login = () => {
 
 export const registerService = () => {
   const INISHIL_REGISTERFORM = {
-    First: "",
-    Last: "",
-    cuntry: "",
+    first: "",
+    last: "",
+    country: "",
     state: "",
     city: "",
     street: "",
@@ -104,12 +125,11 @@ export const registerService = () => {
     phone: "",
     email: "",
     password: "",
-    // isBusiness: false,
   };
   const REGISTAR_SCHEMA = {
-    First: ["min", 2],
-    Last: ["min", 2],
-    cuntry: ["min", 2],
+    first: ["min", 2],
+    last: ["min", 2],
+    country: ["min", 2],
     state: ["min", 2],
     city: ["min", 2],
     street: "required",
@@ -118,7 +138,6 @@ export const registerService = () => {
     phone: "string",
     email: "email",
     password: "password",
-    isBusiness: "boolean",
   };
   const REGISTAR_INPUTS_ARRAY = [
     REGISTER_CUNTRY,
@@ -147,14 +166,27 @@ export const registerService = () => {
     REGISTER_ZIP_ERROR,
   ];
   const hendelSubmitRgistar = (data) => {
-    const isBusiness = CHECK_BUSINESS_BTN;
-    console.log(isBusiness);
-    const { state, cuntry, city, street, houseNumber, zip, First, Last } = data;
-    data.address = { state, cuntry, city, street, houseNumber, zip };
-    data.name = { First, Last };
-    console.log(data);
-    const user = new User(data);
-    console.log(user);
+    data.isBusiness = CHECK_BUSINESS_BTN.checked;
+
+    const {
+      state,
+      country,
+      city,
+      street,
+      houseNumber,
+      zip,
+      first,
+      last,
+      email,
+      password,
+    } = data;
+    data.address = { state, country, city, street, houseNumber, zip };
+    data.name = { first, last };
+
+    const newUser = new User(data);
+    users.push(newUser);
+    /*  user.push(newUser); */
+    console.log(users);
 
     onReset(
       REGISTAR_INPUTS_ARRAY,
@@ -162,8 +194,6 @@ export const registerService = () => {
       REGISTER_SUBMIT_BTN,
       reg.handleReset
     );
-    console.log(data);
-    console.log(user);
   };
   const reg = useForm(
     INISHIL_REGISTERFORM,
@@ -278,14 +308,13 @@ export const registerService = () => {
     )
   );
   REGISTER_SUBMIT_BTN.addEventListener("click", reg.onSubmit);
-
-  CHECK_BUSINESS_BTN.addEventListener("change", (e) => {
-    isBusiness(e);
-  });
-  const isBusiness = (e, data) => {
-    console.log(e);
-    console.log(data);
-    data.isBusiness = e.target.value;
-    console.log(data.isBusiness);
-  };
+};
+export const Logout = () => {
+  removeToken();
+  LOGOUT_LINK.className = "nav-link cursor d-none";
+  LOGIN_PAGE_LINK.className = "nav-link cursor d-block";
+  CREATE_PIC_PAGE_LINK.className = "nav-link cursor d-none";
+  onChangePage(PAGES.HOME);
+  user = getUser();
+  console.log(user);
 };
